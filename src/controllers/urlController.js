@@ -60,3 +60,30 @@ export const openShortUrl = async (req, res) => {
     return res.status(500).send(error);
   }
 };
+
+export const deleteUrl = async (req, res) => {
+  try {
+    const { id: urlId } = req.params;
+    const { id: userId } = res.locals.user;
+
+    const { rows: urls } = await db.query(`
+      SELECT id, "userId"
+      FROM urls
+      WHERE id = $1
+    `, [urlId]);
+
+    const url = urls[0];
+    if (!url) return res.sendStatus(404);
+
+    if (url.userId !== userId) return res.sendStatus(401);
+
+    await db.query(`
+        DELETE FROM urls
+        WHERE id = $1 AND "userId" = $2
+    `, [urlId, userId]);
+
+    return res.sendStatus(204);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
