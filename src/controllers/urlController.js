@@ -19,4 +19,20 @@ export const postUrlsShorten = async (req, res) => {
   }
 };
 
-export const getUrlById = 2;
+export const getUrlById = async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    const { rows: urls } = await db.query(`
+      SELECT urls.id, urls."shortUrl", urls.url
+      FROM urls
+      WHERE urls.id = $1
+    `, [id]);
+    const url = urls[0];
+    if (!url) return res.sendStatus(404);
+
+    return res.send(url);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
