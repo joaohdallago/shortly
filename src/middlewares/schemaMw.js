@@ -1,4 +1,4 @@
-const schemaMiddleware = (schema) => (req, res, next) => {
+const schemaMw = (schema) => (req, res, next) => {
   const validation = schema.validate(req.body);
 
   if (validation.error) return res.status(422).send('Preencha os campos corretamente!');
@@ -6,4 +6,4 @@ const schemaMiddleware = (schema) => (req, res, next) => {
   return next();
 };
 
-export default schemaMiddleware;
+export default schemaMw;
