@@ -36,3 +36,27 @@ export const getUrlById = async (req, res) => {
     return res.status(500).send(error);
   }
 };
+
+export const openShortUrl = async (req, res) => {
+  try {
+    const { rows: shortUrls } = await db.query(`
+      SELECT url, "shortUrl"
+      FROM urls
+      WHERE urls."shortUrl" = $1
+    `, [req.params.shortUrl]);
+
+    if (!shortUrls[0]) return res.sendStatus(404);
+
+    const { url, shortUrl } = shortUrls[0];
+
+    await db.query(`
+        UPDATE urls
+        SET "visitCount" = "visitCount" + 1
+        WHERE urls."shortUrl" = $1
+    `, [shortUrl]);
+
+    return res.redirect(url);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
